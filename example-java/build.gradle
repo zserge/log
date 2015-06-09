@@ -1,0 +1,10 @@
+apply plugin: 'application'
+mainClassName = 'trikita.log.example.Example'
+
+repositories {
+	jcenter()
+}
+
+dependencies {
+	compile 'co.trikita:log:+'
+}
