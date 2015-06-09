@@ -22,6 +22,14 @@ def SCMURL = 'https://github.com/zserge/log.git'
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
 
+repositories {
+	jcenter()
+}
+
+dependencies {
+  testCompile 'junit:junit:4.+'
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
 	classifier = 'sources'
 	from sourceSets.main.allSource

@@ -15,11 +15,11 @@ public final class Log {
 
 	private static Map<String, String> tags = new HashMap<String, String>();
 
-	private final static int V = 0;
-	private final static int D = 1;
-	private final static int I = 2;
-	private final static int W = 3;
-	private final static int E = 4;
+	public final static int V = 0;
+	public final static int D = 1;
+	public final static int I = 2;
+	public final static int W = 3;
+	public final static int E = 4;
 
 	private static String[] mUseTags = new String[]{"tag", "TAG"};
 	private static boolean mUseFormat = false;
@@ -28,6 +28,7 @@ public final class Log {
 	private static int mMinLevel = V;
 
 	public static Log useTags(String[] tags) {
+		mUseTags = tags;
 		return null;
 	}
 
@@ -87,6 +88,11 @@ public final class Log {
 
 	private static String format(boolean fmt, Object msg, Object... args) {
 		Throwable t = null;
+		if (args == null) {
+			// Null array is not supposed to be passed into this method, so it must
+			// be a single null argument
+			args = new Object[]{null};
+		}
 		if (args.length > 0 && args[args.length - 1] instanceof Throwable) {
 			t = (Throwable) args[args.length - 1];
 			args = Arrays.copyOfRange(args, 0, args.length - 1);
@@ -166,17 +172,16 @@ public final class Log {
 			Class<?> c = Class.forName(className);
 			for (String f : mUseTags) {
 				try {
-					Field field = c.getField(f);
+					Field field = c.getDeclaredField(f);
 					if (field != null) {
+						field.setAccessible(true);
 						Object value = field.get(null);
 						if (value instanceof String) {
 							tags.put(className, (String) value);
 							return (String) value;
 						}
 					}
-				} catch (NoSuchFieldException e) {
-					 //Ignore  
-				} catch (IllegalAccessException e) {
+				} catch (NoSuchFieldException|IllegalAccessException|IllegalStateException e) {
 					 //Ignore 
 				}
 			}
