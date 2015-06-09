@@ -11,7 +11,7 @@ public class LogExampleActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.useLog(true).usePrintln(false).useFormat(true);
+		Log.useFormat(true);
 	}
 
 	public void onResume() {
