@@ -42,6 +42,10 @@ publishing {
 				root.appendNode('name', 'log')
 				root.appendNode('description', 'Ultimately minimal yet very convenient logger for Android and Java')
 				root.appendNode('url', 'https://github.com/zserge/log')
+				def dev = root.appendNode('developers').appendNode('developer')
+				dev.appendNode('id', 'trikita')
+				dev.appendNode('name', 'Trikita')
+				dev.appendNode('email', 'zaitsev.serge@gmail.com')
 				def scm = root.appendNode('scm')
 				scm.appendNode('url', 'https://github.com/zserge/log.git')
 				def license = root.appendNode('licenses').appendNode('license')
@@ -67,7 +71,7 @@ bintray {
 		licenses = ["MIT"]
 		publish = true
 		version {
-			name = '1.0.0'
+			name = version
 			gpg {
 				sign = true
 				passphrase = properties.getProperty("bintray.gpg.password")
