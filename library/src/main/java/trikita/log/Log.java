@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public final class Log {
 
-	private static Map<String, String> tags = new HashMap<String, String>();
+	private static Map<String, String> tags = new HashMap<>();
 
 	public final static int V = 0;
 	public final static int D = 1;
