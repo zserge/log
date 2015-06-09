@@ -7,12 +7,20 @@ buildscript {
 	}
 }
 
+
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-group = 'co.trikita'
-version = '1.0.1'
+def GROUPID = 'co.trikita'
+def ARTIFACT = 'log'
+def VERSION = '1.0.3'
+def DESCRIPTION = 'Ultimately minimal yet very convenient logger for Android and Java'
+def WEBURL = 'https://github.com/zserge/log'
+def SCMURL = 'https://github.com/zserge/log.git'
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 task sourcesJar(type: Jar, dependsOn: classes) {
 	classifier = 'sources'
@@ -31,23 +39,23 @@ artifacts {
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
-			groupId group
-			artifactId 'log'
-			version version
+			groupId GROUPID
+			artifactId ARTIFACT
+			version VERSION
 			from components.java
 			artifact sourcesJar
 			artifact javadocJar
 			pom.withXml {
 				def root = asNode()
-				root.appendNode('name', 'log')
-				root.appendNode('description', 'Ultimately minimal yet very convenient logger for Android and Java')
-				root.appendNode('url', 'https://github.com/zserge/log')
+				root.appendNode('name', ARTIFACT)
+				root.appendNode('description', DESCRIPTION)
+				root.appendNode('url', WEBURL)
 				def dev = root.appendNode('developers').appendNode('developer')
 				dev.appendNode('id', 'trikita')
 				dev.appendNode('name', 'Trikita')
 				dev.appendNode('email', 'zaitsev.serge@gmail.com')
 				def scm = root.appendNode('scm')
-				scm.appendNode('url', 'https://github.com/zserge/log.git')
+				scm.appendNode('url', SCMURL)
 				def license = root.appendNode('licenses').appendNode('license')
 				license.appendNode('name', 'MIT License')
 				license.appendNode('url', 'http://www.opensource.org/licenses/mit-license.php')
@@ -57,7 +65,7 @@ publishing {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+properties.load(project.file('local.properties').newDataInputStream())
 
 bintray {
 	user = properties.getProperty("bintray.user")
@@ -65,13 +73,13 @@ bintray {
 	publications = ['mavenJava']
 	pkg {
 		repo = "maven"
-		name = "log"
-		websiteUrl = 'https://github.com/zserge/log'
-		vcsUrl = 'https://github.com/zserge/log.git'
+		name = ARTIFACT
+		websiteUrl = WEBURL
+		vcsUrl = SCMURL
 		licenses = ["MIT"]
 		publish = true
 		version {
-			name = version
+			name = VERSION
 			gpg {
 				sign = true
 				passphrase = properties.getProperty("bintray.gpg.password")
