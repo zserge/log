@@ -30,6 +30,25 @@ dependencies {
   testCompile 'junit:junit:4.+'
 }
 
+sourceSets {
+	androidTest {
+		java {
+			compileClasspath += main.output
+			runtimeClasspath += main.output
+		}
+	}
+}
+
+configurations {
+	androidTestCompile.extendsFrom testCompile
+	androidTestRuntime.extendsFrom testRuntime
+}
+
+task androidTest(type: Test) {
+	testClassesDir = sourceSets.androidTest.output.classesDir
+	classpath = sourceSets.androidTest.runtimeClasspath
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
 	classifier = 'sources'
 	from sourceSets.main.allSource

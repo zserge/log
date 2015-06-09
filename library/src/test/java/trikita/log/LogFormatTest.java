@@ -8,11 +8,7 @@ import java.io.OutputStream;
 
 public class LogFormatTest {
 
-	public interface LogQueue {
-		public String pop();
-	}
-
-	public static class QueuePrintStream extends PrintStream implements LogQueue {
+	public static class QueuePrintStream extends PrintStream {
 		private ArrayDeque<String> mLogs = new ArrayDeque<>();
 
 		public QueuePrintStream(OutputStream out) {
@@ -28,20 +24,15 @@ public class LogFormatTest {
 		}
 	}
 
-	static LogQueue mLogQueue;
+	static QueuePrintStream mLogQueue = new QueuePrintStream(System.out);
 
 	static {
-		QueuePrintStream q = new QueuePrintStream(System.out);
-		System.setOut(q);
-		mLogQueue = q;
+		System.setOut(mLogQueue);
 	}
 
 	@Before
 	public void setup() {
-		// If the log wrapper is a PrintStream - assume we're using println, not android Log
-		if (mLogQueue instanceof PrintStream) {
-			Log.usePrintln(true);
-		}
+		Log.usePrintln(true);
 	}
 
 	@Test
@@ -137,14 +128,10 @@ public class LogFormatTest {
 
 	@Test
 	public void testMute() {
-		if (mLogQueue instanceof PrintStream) {
-			Log.usePrintln(false);
-		}
+		Log.usePrintln(false);
 		// Check that this message will be skipped
 		Log.d("a");
-		if (mLogQueue instanceof PrintStream) {
-			Log.usePrintln(true);
-		}
+		Log.usePrintln(true);
 		Log.d("b");
 		assertEquals("D/LogFormatTest: b", mLogQueue.pop());
 	}
