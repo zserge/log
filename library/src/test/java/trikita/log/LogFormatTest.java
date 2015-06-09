@@ -30,11 +30,6 @@ public class LogFormatTest {
 		System.setOut(mLogQueue);
 	}
 
-	@Before
-	public void setup() {
-		Log.usePrintln(true);
-	}
-
 	@Test
 	public void testSimple() {
 		// Check that log queue wrapper works
@@ -128,8 +123,8 @@ public class LogFormatTest {
 
 	@Test
 	public void testMute() {
-		Log.usePrintln(false);
 		// Check that this message will be skipped
+		Log.usePrintln(false);
 		Log.d("a");
 		Log.usePrintln(true);
 		Log.d("b");

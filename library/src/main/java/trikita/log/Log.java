@@ -121,6 +121,31 @@ public final class Log {
 
 	private static Class<?> mLogClass = null;
 	private static Method[] mLogMethods = null;
+
+	private static void prepareAndroidUtilLog() {
+		try {
+			mLogClass = Class.forName("android.util.Log");
+			String[] names = new String[]{"v", "d", "i", "w", "e"};
+			mLogMethods = new Method[names.length];
+			for (int i = 0; i < names.length; i++) {
+				mLogMethods[i] = mLogClass.getMethod(names[i], String.class, String.class);
+			}
+		} catch (NoSuchMethodException|ClassNotFoundException e) {
+			// Ignore
+		}
+	}
+
+	static {
+		prepareAndroidUtilLog();
+		if (mLogClass != null) {
+			mUseLog = true;
+			mUsePrintln = false;
+		} else {
+			mUseLog = false;
+			mUsePrintln = true;
+		}
+	}
+
 	private static void print(int level, String tag, String msg) {
 		if (level < mMinLevel) {
 			return;
@@ -128,29 +153,11 @@ public final class Log {
 		if (mUsePrintln) {
 			String[] levels = new String[]{"V", "D", "I", "W", "E"};
 			System.out.println(levels[level] + "/" + tag + ": " + msg);
-		} else if (mUseLog) {
-			if (mLogClass == null) {
-				try {
-					mLogClass = Class.forName("android.util.Log");
-					String[] names = new String[]{"v", "d", "i", "w", "e"};
-					mLogMethods = new Method[names.length];
-					for (int i = 0; i < names.length; i++) {
-						mLogMethods[i] = mLogClass.getMethod(names[i], String.class, String.class);
-					}
-				} catch (NoSuchMethodException e) {
-					mLogClass = null;
-				} catch (ClassNotFoundException e) {
-					mLogClass = null;
-				}
-			}
-			if (mLogClass != null) {
-				try {
-					mLogMethods[level].invoke(null, tag, msg);
-				} catch (InvocationTargetException e) {
-					// Ignore
-				} catch (IllegalAccessException e) {
-					// Ignore
-				}
+		} else if (mUseLog && mLogClass != null) {
+			try {
+				mLogMethods[level].invoke(null, tag, msg);
+			} catch (InvocationTargetException|IllegalAccessException e) {
+				// Ignore
 			}
 		}
 	}
