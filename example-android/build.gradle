@@ -26,6 +26,6 @@ repositories {
 }
 
 dependencies {
-	compile 'co.trikita:log:1.0.3+'
+	compile 'co.trikita:log:1.1.+'
 }
 
