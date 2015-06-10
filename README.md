@@ -56,7 +56,7 @@ Log
 	.d("Third line")
 
 // Filters by log level
-Log.useLevel(Log.I);
+Log.level(Log.I);
 Log.d("foo"); // will be ignored
 
 // Format strings are suported, too
