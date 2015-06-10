@@ -197,8 +197,11 @@ public class LogFormatTest {
 	public void testThrowables() {
 		Log.d(new Exception("foo"));
 		assertEquals("D/LogFormatTest: java.lang.Exception: foo", mLogQueue.pop());
+		while (mLogQueue.pop() != null);
 
 		Log.d("a", "b", new Exception("bar"));
-		assertTrue(mLogQueue.pop().startsWith("D/LogFormatTest: a\tb\njava.lang.Exception: bar\n"));
+		assertEquals("D/LogFormatTest: a\tb", mLogQueue.pop());
+		assertEquals("D/LogFormatTest: java.lang.Exception: bar", mLogQueue.pop());
+		while (mLogQueue.pop() != null);
 	}
 }

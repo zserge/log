@@ -146,19 +146,36 @@ public final class Log {
 		}
 	}
 
+	public final static int MAX_LOG_LINE_LENGTH = 4000;
+
 	private static void print(int level, String tag, String msg) {
 		if (level < mMinLevel) {
 			return;
 		}
-		if (mUsePrintln) {
-			String[] levels = new String[]{"V", "D", "I", "W", "E"};
-			System.out.println(levels[level] + "/" + tag + ": " + msg);
-		} else if (mUseLog && mLogClass != null) {
-			try {
-				mLogMethods[level].invoke(null, tag, msg);
-			} catch (InvocationTargetException|IllegalAccessException e) {
-				// Ignore
-			}
+		for (String line : msg.split("\\n")) {
+			do {
+				int splitPos = Math.min(MAX_LOG_LINE_LENGTH, line.length());
+				for (int i = splitPos-1; line.length() > MAX_LOG_LINE_LENGTH && i >= 0; i--) {
+					if (" \t,.;:?!{}()[]/\\".indexOf(line.charAt(i)) != -1) {
+						splitPos = i;
+						break;
+					}
+				}
+				splitPos = Math.min(splitPos + 1, line.length());
+				String part = line.substring(0, splitPos);
+				line = line.substring(splitPos);
+
+				if (mUsePrintln) {
+					String[] levels = new String[]{"V", "D", "I", "W", "E"};
+					System.out.println(levels[level] + "/" + tag + ": " + part);
+				} else if (mUseLog && mLogClass != null) {
+					try {
+						mLogMethods[level].invoke(null, tag, part);
+					} catch (InvocationTargetException|IllegalAccessException e) {
+						// Ignore
+					}
+				}
+			} while (line.length() > 0);
 		}
 	}
 
