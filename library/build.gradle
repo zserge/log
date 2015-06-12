@@ -92,7 +92,11 @@ publishing {
 }
 
 Properties properties = new Properties()
-properties.load(project.file('local.properties').newDataInputStream())
+try {
+	properties.load(project.file('local.properties').newDataInputStream())
+} catch (Exception e) {
+	// Ignore, file may be missing
+}
 
 bintray {
 	user = properties.getProperty("bintray.user")
