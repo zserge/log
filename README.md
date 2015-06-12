@@ -1,6 +1,7 @@
 # Ultimately minimal (yet very convenient) logger for Android and Java.
 
 [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-log-brightgreen.svg?style=flat)](http://android-arsenal.com/details/1/1958)
+[![Build Status](https://travis-ci.org/zserge/log.svg?branch=master)](https://travis-ci.org/zserge/log)
 
 Log is a super-simple drop-in replacement for `android.util.Log` that can also
 be used in normal Java projects.
