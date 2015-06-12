@@ -204,4 +204,26 @@ public class LogFormatTest {
 		assertEquals("D/LogFormatTest: java.lang.Exception: bar", mLogQueue.pop());
 		while (mLogQueue.pop() != null);
 	}
+
+	@Test
+	public void testLongMessages() {
+		// Check a long string without any spaces
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < Log.MAX_LOG_LINE_LENGTH+10; i++) {
+			sb.append("abcde".charAt(i%5));
+		}
+		Log.d(sb.toString());
+		assertEquals("D/LogFormatTest: " + sb.toString().substring(0, Log.MAX_LOG_LINE_LENGTH+1), mLogQueue.pop());
+		assertEquals("D/LogFormatTest: bcdeabcde", mLogQueue.pop());
+
+		// Check a long string with a space separator
+		sb = new StringBuilder();
+		sb.append("hello ");
+		for (int i = 0; i < Log.MAX_LOG_LINE_LENGTH; i++) {
+			sb.append("x");
+		}
+		Log.d(sb.toString());
+		assertEquals("D/LogFormatTest: hello ", mLogQueue.pop());
+		assertTrue(mLogQueue.pop().startsWith("D/LogFormatTest: xxxxxx"));
+	}
 }
