@@ -91,7 +91,7 @@ repositories {
 	jcenter() // mavenCentral() would work, too
 }
 dependencies {
-	compile 'co.trikita:log:1.1.1'
+	compile 'co.trikita:log:1.1.4'
 }
 ```
 ## Migration from android.util.Log
