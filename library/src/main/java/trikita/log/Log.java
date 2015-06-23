@@ -74,6 +74,9 @@ public final class Log {
 	}
 
 	private static void log(int level, boolean fmt, Object msg, Object... args) {
+		if (level < mMinLevel) {
+			return;
+		}
 		String tag = tag();
 		if (mUseTags.length > 0 && tag.equals(msg)) {
 			if (args.length > 1) {
@@ -149,9 +152,6 @@ public final class Log {
 	public final static int MAX_LOG_LINE_LENGTH = 4000;
 
 	private static void print(int level, String tag, String msg) {
-		if (level < mMinLevel) {
-			return;
-		}
 		for (String line : msg.split("\\n")) {
 			do {
 				int splitPos = Math.min(MAX_LOG_LINE_LENGTH, line.length());
