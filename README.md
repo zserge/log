@@ -103,7 +103,15 @@ can just change imports using 'sed' (Linux/Mac/Cygwin):
 $ find -name "*.java" -type f -exec sed -i 's/import android.util.Log/import trikita.log.Log/g' {} \;
 ```
 
-Probably your IDE would make it in an easier way. If so - let me know.
+If you're using Android Studio: in the project pane right-click on the `app/java`
+directory (or any other directory containing your java classes). In the popup
+menu select "Replace in Path..." option.
+
+'Text to find' should be "android.util.Log".
+'Replace with' should be "trikita.log.Log".
+Click Find, click All files.
+
+If you know an easier way (or for different IDE) - let me know.
 
 ## How is it different from...
 
