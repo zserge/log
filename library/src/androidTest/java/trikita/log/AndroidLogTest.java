@@ -15,9 +15,9 @@ public class AndroidLogTest {
 		Log.d("foo");
 		assertEquals("D/AndroidLogTest: foo", android.util.Log.getLastMessage());
 
-		Log.useLog(false);
+		Log.usePrinter(Log.ANDROID, false);
 		Log.d("bar");
-		Log.useLog(true);
+		Log.usePrinter(Log.ANDROID, true);
 		assertEquals("D/AndroidLogTest: foo", android.util.Log.getLastMessage());
 	}
 }

@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Set;
+import java.util.HashSet;
 
 public final class Log {
 
@@ -21,11 +23,65 @@ public final class Log {
 	public final static int W = 3;
 	public final static int E = 4;
 
+	public interface Printer {
+		public void print(int level, String tag, String msg);
+	}
+
+	private static class SystemOutPrinter implements Printer {
+		public final static String[] levels = {"V", "D", "I", "W", "E"};
+		public void print(int level, String tag, String msg) {
+			System.out.println(levels[level] + "/" + tag + ": " + msg);
+		}
+	}
+
+	private static class AndroidPrinter implements Printer {
+		private Class<?> mLogClass = null;
+		private Method[] mLogMethods = null;
+
+		private final boolean loaded;
+
+		public AndroidPrinter() {
+			try {
+				mLogClass = Class.forName("android.util.Log");
+				String[] names = new String[]{"v", "d", "i", "w", "e"};
+				mLogMethods = new Method[names.length];
+				for (int i = 0; i < names.length; i++) {
+					mLogMethods[i] = mLogClass.getMethod(names[i], String.class, String.class);
+				}
+			} catch (NoSuchMethodException|ClassNotFoundException e) {
+				loaded = false;
+				return;
+			}
+			loaded = true;
+		}
+
+		public void print(int level, String tag, String msg) {
+			try {
+				if (loaded) {
+					mLogMethods[level].invoke(null, tag, msg);
+				}
+			} catch (InvocationTargetException|IllegalAccessException e) {
+				// Ignore
+			}
+		}
+	}
+
+	public final static SystemOutPrinter SYSTEM = new SystemOutPrinter();
+	public final static AndroidPrinter ANDROID = new AndroidPrinter();
+
 	private static String[] mUseTags = new String[]{"tag", "TAG"};
 	private static boolean mUseFormat = false;
-	private static boolean mUseLog = false;
-	private static boolean mUsePrintln = false;
 	private static int mMinLevel = V;
+
+	private static Set<Printer> mPrinters = new HashSet<>();
+
+	static {
+		if (ANDROID.loaded) {
+			usePrinter(ANDROID, true);
+		} else {
+			usePrinter(SYSTEM, true);
+		}
+	}
 
 	public static Log useTags(String[] tags) {
 		mUseTags = tags;
@@ -42,13 +98,12 @@ public final class Log {
 		return null;
 	}
 
-	public static Log useLog(boolean yes) {
-		mUseLog = yes;
-		return null;
-	}
-
-	public static Log usePrintln(boolean yes) {
-		mUsePrintln = yes;
+	public static Log usePrinter(Printer p, boolean on) {
+		if (on) {
+			mPrinters.add(p);
+		} else {
+			mPrinters.remove(p);
+		}
 		return null;
 	}
 
@@ -122,33 +177,6 @@ public final class Log {
 		return sb.toString();
 	}
 
-	private static Class<?> mLogClass = null;
-	private static Method[] mLogMethods = null;
-
-	private static void prepareAndroidUtilLog() {
-		try {
-			mLogClass = Class.forName("android.util.Log");
-			String[] names = new String[]{"v", "d", "i", "w", "e"};
-			mLogMethods = new Method[names.length];
-			for (int i = 0; i < names.length; i++) {
-				mLogMethods[i] = mLogClass.getMethod(names[i], String.class, String.class);
-			}
-		} catch (NoSuchMethodException|ClassNotFoundException e) {
-			// Ignore
-		}
-	}
-
-	static {
-		prepareAndroidUtilLog();
-		if (mLogClass != null) {
-			mUseLog = true;
-			mUsePrintln = false;
-		} else {
-			mUseLog = false;
-			mUsePrintln = true;
-		}
-	}
-
 	public final static int MAX_LOG_LINE_LENGTH = 4000;
 
 	private static void print(int level, String tag, String msg) {
@@ -165,15 +193,8 @@ public final class Log {
 				String part = line.substring(0, splitPos);
 				line = line.substring(splitPos);
 
-				if (mUsePrintln) {
-					String[] levels = new String[]{"V", "D", "I", "W", "E"};
-					System.out.println(levels[level] + "/" + tag + ": " + part);
-				} else if (mUseLog && mLogClass != null) {
-					try {
-						mLogMethods[level].invoke(null, tag, part);
-					} catch (InvocationTargetException|IllegalAccessException e) {
-						// Ignore
-					}
+				for (Printer p : mPrinters) {
+					p.print(level, tag, part);
 				}
 			} while (line.length() > 0);
 		}

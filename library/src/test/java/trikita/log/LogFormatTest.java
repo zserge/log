@@ -124,9 +124,9 @@ public class LogFormatTest {
 	@Test
 	public void testMute() {
 		// Check that this message will be skipped
-		Log.usePrintln(false);
+		Log.usePrinter(Log.SYSTEM, false);
 		Log.d("a");
-		Log.usePrintln(true);
+		Log.usePrinter(Log.SYSTEM, true);
 		Log.d("b");
 		assertEquals("D/LogFormatTest: b", mLogQueue.pop());
 	}
