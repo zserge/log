@@ -37,29 +37,32 @@ public final class Log {
 	}
 
 	private static class AndroidPrinter implements Printer {
+
+		private final static String[] METHOD_NAMES = new String[]{"v", "d", "i", "w", "e"};
+
 		private final Class<?> mLogClass;
 		private final Method[] mLogMethods;
-
-		private final boolean loaded;
+		private final boolean mLoaded;
 
 		public AndroidPrinter() {
+			Class logClass = null;
+			boolean loaded = false;
+			mLogMethods = new Method[METHOD_NAMES.length];
 			try {
-				mLogClass = Class.forName("android.util.Log");
-				String[] names = new String[]{"v", "d", "i", "w", "e"};
-				mLogMethods = new Method[names.length];
-				for (int i = 0; i < names.length; i++) {
-					mLogMethods[i] = mLogClass.getMethod(names[i], String.class, String.class);
+				logClass = Class.forName("android.util.Log");
+				for (int i = 0; i < METHOD_NAMES.length; i++) {
+					mLogMethods[i] = logClass.getMethod(METHOD_NAMES[i], String.class, String.class);
 				}
+				loaded = true;
 			} catch (NoSuchMethodException|ClassNotFoundException e) {
-				loaded = false;
-				return;
 			}
-			loaded = true;
+			mLogClass = logClass;
+			mLoaded = loaded;
 		}
 
 		public void print(int level, String tag, String msg) {
 			try {
-				if (loaded) {
+				if (mLoaded) {
 					mLogMethods[level].invoke(null, tag, msg);
 				}
 			} catch (InvocationTargetException|IllegalAccessException e) {
@@ -78,7 +81,7 @@ public final class Log {
 	private static Set<Printer> mPrinters = new HashSet<>();
 
 	static {
-		if (ANDROID.loaded) {
+		if (ANDROID.mLoaded) {
 			usePrinter(ANDROID, true);
 		} else {
 			usePrinter(SYSTEM, true);
