@@ -23,6 +23,8 @@ public final class Log {
 	public final static int W = 3;
 	public final static int E = 4;
 
+	private Log() {}
+
 	public interface Printer {
 		public void print(int level, String tag, String msg);
 	}
@@ -35,8 +37,8 @@ public final class Log {
 	}
 
 	private static class AndroidPrinter implements Printer {
-		private Class<?> mLogClass = null;
-		private Method[] mLogMethods = null;
+		private final Class<?> mLogClass;
+		private final Method[] mLogMethods;
 
 		private final boolean loaded;
 
@@ -226,7 +228,8 @@ public final class Log {
 							return (String) value;
 						}
 					}
-				} catch (NoSuchFieldException|IllegalAccessException|IllegalStateException e) {
+				} catch (NoSuchFieldException|IllegalAccessException|
+						IllegalStateException|NullPointerException e) {
 					 //Ignore 
 				}
 			}
