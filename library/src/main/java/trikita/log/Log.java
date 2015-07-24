@@ -7,15 +7,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.Set;
-import java.util.HashSet;
 
 public final class Log {
-
-	private static Map<String, String> tags = new HashMap<>();
 
 	public final static int V = 0;
 	public final static int D = 1;
@@ -30,9 +28,9 @@ public final class Log {
 	}
 
 	private static class SystemOutPrinter implements Printer {
-		public final static String[] levels = {"V", "D", "I", "W", "E"};
+		private final static String[] LEVELS = new String[]{"V", "D", "I", "W", "E"};
 		public void print(int level, String tag, String msg) {
-			System.out.println(levels[level] + "/" + tag + ": " + msg);
+			System.out.println(LEVELS[level] + "/" + tag + ": " + msg);
 		}
 	}
 
@@ -55,6 +53,7 @@ public final class Log {
 				}
 				loaded = true;
 			} catch (NoSuchMethodException|ClassNotFoundException e) {
+				// Ignore
 			}
 			mLogClass = logClass;
 			mLoaded = loaded;
@@ -74,6 +73,8 @@ public final class Log {
 	public final static SystemOutPrinter SYSTEM = new SystemOutPrinter();
 	public final static AndroidPrinter ANDROID = new AndroidPrinter();
 
+	private final static Map<String, String> mTags = new HashMap<>();
+
 	private static String[] mUseTags = new String[]{"tag", "TAG"};
 	private static boolean mUseFormat = false;
 	private static int mMinLevel = V;
@@ -88,22 +89,22 @@ public final class Log {
 		}
 	}
 
-	public static Log useTags(String[] tags) {
+	public static synchronized Log useTags(String[] tags) {
 		mUseTags = tags;
 		return null;
 	}
 
-	public static Log level(int minLevel) {
+	public static synchronized Log level(int minLevel) {
 		mMinLevel = minLevel;
 		return null;
 	}
 
-	public static Log useFormat(boolean yes) {
+	public static synchronized Log useFormat(boolean yes) {
 		mUseFormat = yes;
 		return null;
 	}
 
-	public static Log usePrinter(Printer p, boolean on) {
+	public static synchronized Log usePrinter(Printer p, boolean on) {
 		if (on) {
 			mPrinters.add(p);
 		} else {
@@ -112,23 +113,23 @@ public final class Log {
 		return null;
 	}
 
-	public static Log v(Object msg, Object... args) {
+	public static synchronized Log v(Object msg, Object... args) {
 		log(V, mUseFormat, msg, args);
 		return null;
 	}
-	public static Log d(Object msg, Object... args) {
+	public static synchronized Log d(Object msg, Object... args) {
 		log(D, mUseFormat, msg, args);
 		return null;
 	}
-	public static Log i(Object msg, Object... args) {
+	public static synchronized Log i(Object msg, Object... args) {
 		log(I, mUseFormat, msg, args);
 		return null;
 	}
-	public static Log w(Object msg, Object... args) {
+	public static synchronized Log w(Object msg, Object... args) {
 		log(W, mUseFormat, msg, args);
 		return null;
 	}
-	public static Log e(Object msg, Object... args) {
+	public static synchronized Log e(Object msg, Object... args) {
 		log(E, mUseFormat, msg, args);
 		return null;
 	}
@@ -182,7 +183,7 @@ public final class Log {
 		return sb.toString();
 	}
 
-	public final static int MAX_LOG_LINE_LENGTH = 4000;
+	final static int MAX_LOG_LINE_LENGTH = 4000;
 
 	private static void print(int level, String tag, String msg) {
 		for (String line : msg.split("\\n")) {
@@ -205,8 +206,8 @@ public final class Log {
 		}
 	}
 
-	private static final Pattern ANONYMOUS_CLASS = Pattern.compile("\\$\\d+$");
-	public final static int STACK_DEPTH = 4;
+	private final static Pattern ANONYMOUS_CLASS = Pattern.compile("\\$\\d+$");
+	private final static int STACK_DEPTH = 4;
 	private static String tag() {
 		StackTraceElement[] stackTrace = new Throwable().getStackTrace();
 		if (stackTrace.length < STACK_DEPTH) {
@@ -214,8 +215,9 @@ public final class Log {
 				("Synthetic stacktrace didn't have enough elements: are you using proguard?");
 		}
 		String className = stackTrace[STACK_DEPTH-1].getClassName();
-		if (tags.get(className) != null) {
-			return tags.get(className);
+		String tag = mTags.get(className);
+		if (tag != null) {
+			return tag;
 		}
 
 		try {
@@ -227,7 +229,7 @@ public final class Log {
 						field.setAccessible(true);
 						Object value = field.get(null);
 						if (value instanceof String) {
-							tags.put(className, (String) value);
+							mTags.put(className, (String) value);
 							return (String) value;
 						}
 					}
