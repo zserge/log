@@ -14,7 +14,7 @@ apply plugin: 'com.jfrog.bintray'
 
 def GROUPID = 'co.trikita'
 def ARTIFACT = 'log'
-def VERSION = '1.1.4'
+def VERSION = '1.1.5'
 def DESCRIPTION = 'Ultimately minimal yet very convenient logger for Android and Java'
 def WEBURL = 'https://github.com/zserge/log'
 def SCMURL = 'https://github.com/zserge/log.git'

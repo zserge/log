@@ -76,7 +76,8 @@ Log.d("Hello\nworld"); // prints 'D/SomeTag: Hello' and 'D/SomeTag: world'
 // On Android logs are printed via android.util.Log by default.
 // On other JVMs logs are printed via System.out.println by default.
 // Unless specified otherwise
-Log.usePrintln(true).useLog(false).d("hello"); // will be printed via System.out on Android as well
+Log.usePrinter(Log.SYSTEM, true).usePrinter(Log.ANDROID, false).d("hello"); // will be printed via System.out on Android as well
+Log.usePrinter(mMyPrinter, true); // or you can use your own custom printers
 
 // And it's only a single class of 200 LOC, so don't be afraid that it will
 // bloat your APK or slow down your builds.
@@ -91,7 +92,7 @@ repositories {
 	jcenter() // mavenCentral() would work, too
 }
 dependencies {
-	compile 'co.trikita:log:1.1.4'
+	compile 'co.trikita:log:1.1.5'
 }
 ```
 ## Migration from android.util.Log
