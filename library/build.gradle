@@ -66,10 +66,10 @@ artifacts {
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
+			from components.java
 			groupId GROUPID
 			artifactId ARTIFACT
 			version VERSION
-			from components.java
 			artifact sourcesJar
 			artifact javadocJar
 			pom.withXml {
