@@ -10,8 +10,8 @@ buildscript {
 apply plugin: 'com.android.application'
 
 android {
-	compileSdkVersion 'android-21'
-	buildToolsVersion '21.1.2'
+	compileSdkVersion 'android-22'
+	buildToolsVersion '22.0.1'
 
 	buildTypes {
 		release {
