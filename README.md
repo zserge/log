@@ -66,7 +66,7 @@ Log.d("foo"); // will be ignored
 Log.useFormat(true);
 Log.d("X equals %d", x); // prints 'X equals 42'
 // But if no format is provided - log will be printed as multiple values
-Log.d("Value of X", x); // prints 'Value of X 42'
+Log.d("Value of X ", x); // prints 'Value of X 42'
 
 // Long messages are wrapped on newlines
 // If the message doesn't contain newlines and is longer than 4000 symbols
