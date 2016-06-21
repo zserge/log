@@ -79,6 +79,11 @@ Log.d("Hello\nworld"); // prints 'D/SomeTag: Hello' and 'D/SomeTag: world'
 Log.usePrinter(Log.SYSTEM, true).usePrinter(Log.ANDROID, false).d("hello"); // will be printed via System.out on Android as well
 Log.usePrinter(mMyPrinter, true); // or you can use your own custom printers
 
+// If you want to disable debug printing for Release build
+if (!BuildConfig.DEBUG) {
+  Log.usePrinter(Log.ANDROID, false); // from now on Log.d etc do nothing and is likely to be optimized with JIT
+}
+
 // And it's only a single class of 200 LOC, so don't be afraid that it will
 // bloat your APK or slow down your builds.
 ```
